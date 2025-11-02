@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: Enterprise-Learning-Tracker
+
+  profiles:
+    active: dev
+
+  modulith:
+    republish-outstanding-events-on-restart: true
+    events:
+      jdbc-schema-initialization:
+        enabled: true
+
+  jpa:
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,modulith
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    root: INFO
+    com.learning.tracker: DEBUG
+    org.springframework.modulith: DEBUG
