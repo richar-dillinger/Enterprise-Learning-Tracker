@@ -135,7 +135,7 @@ The JAR will be created at: `build/libs/Enterprise-Learning-Tracker-0.0.1-SNAPSH
 
 ### 1. Start Infrastructure Services
 
-The application requires Keycloak for authentication and PostgreSQL for Keycloak's persistence.
+The application requires Keycloak for authentication and two PostgreSQL instances (one for the application, one for Keycloak).
 
 #### Option A: Automated Script (Recommended)
 
@@ -144,8 +144,9 @@ The application requires Keycloak for authentication and PostgreSQL for Keycloak
 ```
 
 This script will:
+- Start Application PostgreSQL on port 5434
+- Start Keycloak PostgreSQL on port 5433
 - Start Keycloak on port 8180
-- Start PostgreSQL on port 5432
 - Wait for services to be ready
 - Display connection information and test user credentials
 
@@ -168,10 +169,19 @@ docker-compose ps
   - Password: `admin`
   - Realm: `enterprise-learning-tracker`
 
-- **H2 Console** (when app is running): http://localhost:8080/h2-console
-  - JDBC URL: `jdbc:h2:mem:eltdb`
-  - Username: `sa`
-  - Password: (leave empty)
+- **PostgreSQL Databases**:
+  - Application Database:
+    - Host: `localhost`
+    - Port: `5434`
+    - Database: `eltdb`
+    - Username: `eltuser`
+    - Password: `eltpass`
+  - Keycloak Database:
+    - Host: `localhost`
+    - Port: `5433`
+    - Database: `keycloak`
+    - Username: `keycloak`
+    - Password: `keycloak`
 
 ### 3. IDE Setup
 
@@ -227,7 +237,8 @@ java -jar build/libs/Enterprise-Learning-Tracker-0.0.1-SNAPSHOT.jar --spring.pro
 | Service | URL | Credentials |
 |---------|-----|-------------|
 | Application API | http://localhost:8080 | See test users below |
-| H2 Console | http://localhost:8080/h2-console | sa / (empty) |
+| App PostgreSQL | localhost:5434 | eltuser / eltpass |
+| Keycloak PostgreSQL | localhost:5433 | keycloak / keycloak |
 | Keycloak Admin | http://localhost:8180 | admin / admin |
 | Actuator Health | http://localhost:8080/actuator/health | Public |
 | Actuator Endpoints | http://localhost:8080/actuator | Public (dev only) |
@@ -401,6 +412,47 @@ Each module follows **Hexagonal Architecture** (Ports & Adapters):
 - **Lombok** - Boilerplate reduction
 - **Gradle** - Build automation
 
+### Infrastructure Architecture
+
+The development environment uses separate PostgreSQL instances for better isolation:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                     Application                              │
+│                  (Spring Boot)                               │
+│                   Port: 8080                                 │
+└───────────────────────┬──────────────────────────────────────┘
+                        │
+                        ↓
+            ┌───────────────────────┐
+            │  App PostgreSQL       │
+            │  Port: 5434           │
+            │  Database: eltdb      │
+            │  User: eltuser        │
+            └───────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────┐
+│                      Keycloak                                │
+│               (Authentication Server)                        │
+│                   Port: 8180                                 │
+└───────────────────────┬──────────────────────────────────────┘
+                        │
+                        ↓
+            ┌───────────────────────┐
+            │ Keycloak PostgreSQL   │
+            │  Port: 5433           │
+            │  Database: keycloak   │
+            │  User: keycloak       │
+            └───────────────────────┘
+```
+
+**Key Infrastructure Components:**
+- **Application PostgreSQL** (port 5434): Stores application data (users, schools, learning paths, enrollments, etc.)
+- **Keycloak PostgreSQL** (port 5433): Stores Keycloak's internal data (realms, clients, sessions)
+- **Keycloak Server** (port 8180): Handles authentication and authorization
+- **Spring Boot Application** (port 8080): Main application server
+
 ### Architectural Patterns
 
 #### 1. Spring Modulith (Modular Monolith)
@@ -492,7 +544,7 @@ Authentication and authorization are handled by Keycloak:
 
 Development mode includes:
 - Auto-restart with Spring DevTools
-- H2 in-memory database
+- PostgreSQL database (persistent)
 - Detailed logging
 - All Actuator endpoints exposed
 - CORS enabled for local frontend development
@@ -510,12 +562,20 @@ Spring DevTools provides automatic restart when files change:
 
 ### Database Access
 
-**H2 Console (Development)**
-```
-URL: http://localhost:8080/h2-console
-JDBC URL: jdbc:h2:mem:eltdb
-Username: sa
-Password: (empty)
+**PostgreSQL (Development)**
+
+You can connect to the database using any PostgreSQL client (pgAdmin, DBeaver, psql, etc.):
+
+```bash
+# Using psql command line
+psql -h localhost -p 5434 -U eltuser -d eltdb
+
+# Connection details
+Host: localhost
+Port: 5434
+Database: eltdb
+Username: eltuser
+Password: eltpass
 ```
 
 ### Logging
@@ -643,19 +703,16 @@ java -version  # Must be Java 21
 - Verify application-dev.yml has correct Keycloak URL
 - Check Keycloak realm name matches configuration
 
-#### 6. H2 Console Not Accessible
+#### 6. PostgreSQL Connection Issues
 
-**Problem**: H2 Console returns 404 or 403
+**Problem**: Cannot connect to PostgreSQL
 
 **Solution**:
-- Ensure running with `dev` profile
-- Check `application-dev.yml` has H2 console enabled:
-  ```yaml
-  spring:
-    h2:
-      console:
-        enabled: true
-  ```
+- Ensure Docker services are running: `docker-compose ps`
+- Check PostgreSQL is listening: `docker-compose logs elt-postgres`
+- Verify connection details in `application-dev.yml`
+- Test connection: `psql -h localhost -p 5434 -U eltuser -d eltdb`
+- Restart services: `docker-compose restart elt-postgres`
 
 ### Getting Help
 

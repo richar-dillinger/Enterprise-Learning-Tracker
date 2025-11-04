@@ -25,12 +25,52 @@ this application is an aggregator of these resources and manage them to provide 
 - Spring Boot 3.5.6
 - Spring Modulith 1.4.3 (modular monolith architecture)
 - Gradle build system
-- PostgreSQL (production) / H2 (development)
+- PostgreSQL (for both application data and Keycloak)
+- Keycloak 23.0 (authentication & authorization)
 - Lombok for boilerplate reduction
 
+## Infrastructure Architecture
+
+The development environment uses separate PostgreSQL instances for better isolation:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                     Application                              │
+│                  (Spring Boot)                               │
+│                   Port: 8080                                 │
+└───────────────────────┬──────────────────────────────────────┘
+                        │
+                        ↓
+            ┌───────────────────────┐
+            │  App PostgreSQL       │
+            │  Port: 5434           │
+            │  Database: eltdb      │
+            │  User: eltuser        │
+            └───────────────────────┘
 
 
-## Architecture
+┌──────────────────────────────────────────────────────────────┐
+│                      Keycloak                                │
+│               (Authentication Server)                        │
+│                   Port: 8180                                 │
+└───────────────────────┬──────────────────────────────────────┘
+                        │
+                        ↓
+            ┌───────────────────────┐
+            │ Keycloak PostgreSQL   │
+            │  Port: 5433           │
+            │  Database: keycloak   │
+            │  User: keycloak       │
+            └───────────────────────┘
+```
+
+**Key Infrastructure Components:**
+- **Application PostgreSQL** (port 5434): Stores application data (users, schools, learning paths, enrollments, etc.)
+- **Keycloak PostgreSQL** (port 5433): Stores Keycloak's internal data (realms, clients, sessions)
+- **Keycloak Server** (port 8180): Handles authentication and authorization
+- **Spring Boot Application** (port 8080): Main application server
+
+## Module Architecture
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     User Management                          │
@@ -363,9 +403,10 @@ void on(OrderConfirmedEvent event) {
 - **Spring Boot 3.x**: Application framework
 - **Spring Data JPA**: Persistence adapter implementation
 - **Spring Modulith**: Module boundary enforcement and event handling
-- **PostgreSQL**: Production database
-- **H2**: In-memory database for testing
-- **Keycloak**: Authentication/Authorization adapter
+- **PostgreSQL**: Application database (development & production)
+- **PostgreSQL**: Keycloak persistence database (separate instance)
+- **Keycloak 23.0**: Authentication/Authorization server
+- **Docker & Docker Compose**: Container orchestration for development environment
 
 This project uses **Spring Modulith**, a modular monolith architecture pattern. Key architectural principles:
 
@@ -388,12 +429,20 @@ The base package is `com.learning.tracker`. When adding new modules:
 
 ## Configuration
 
-- **Application properties**: `src/main/resources/application.properties`
+- **Application properties**: `src/main/resources/application.yml` and profile-specific configurations
 - **Main application class**: `src/main/java/com/learning/tracker/TrackerApplication.java`
-- **Database**: Supports PostgreSQL (runtime) and H2 (runtime). Configure connection details in application.properties.
+- **Database**: PostgreSQL for both application data and Keycloak persistence (separate instances)
+- **Profiles**:
+  - `dev`: Development with PostgreSQL, detailed logging, all actuator endpoints
+  - `test`: Testing profile
+  - `prod`: Production profile
 
 ## Development
 
+- **Infrastructure**: Start services with `./start-dev.sh` (starts both PostgreSQL instances and Keycloak)
+- **Database Access**:
+  - Application DB: `psql -h localhost -p 5434 -U eltuser -d eltdb`
+  - Keycloak DB: `psql -h localhost -p 5433 -U keycloak -d keycloak`
 - **Lombok**: Use Lombok annotations to reduce boilerplate. Ensure your IDE has Lombok annotation processing enabled.
 - **DevTools**: Spring Boot DevTools is included for automatic application restart during development.
 - **Actuator**: Spring Boot Actuator endpoints available for application monitoring and health checks.

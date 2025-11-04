@@ -17,7 +17,10 @@ echo "✓ Docker is running"
 echo ""
 
 # Start Docker Compose services
-echo "Starting Keycloak and PostgreSQL..."
+echo "Starting services..."
+echo "  - PostgreSQL for Keycloak (port 5433)"
+echo "  - PostgreSQL for Application (port 5434)"
+echo "  - Keycloak (port 8180)"
 docker-compose up -d
 
 echo ""
@@ -39,8 +42,9 @@ until curl -f http://localhost:8180 > /dev/null 2>&1; do
 done
 
 echo ""
+echo "✓ Keycloak PostgreSQL is ready at localhost:5433"
+echo "✓ Application PostgreSQL is ready at localhost:5434"
 echo "✓ Keycloak is ready at http://localhost:8180"
-echo "✓ PostgreSQL is ready"
 echo ""
 
 # Display service information
@@ -48,6 +52,24 @@ echo "======================================"
 echo "Services Status:"
 echo "======================================"
 docker-compose ps
+echo ""
+
+echo "======================================"
+echo "Database Connections"
+echo "======================================"
+echo "Application PostgreSQL:"
+echo "  Host:     localhost"
+echo "  Port:     5434"
+echo "  Database: eltdb"
+echo "  User:     eltuser"
+echo "  Password: eltpass"
+echo ""
+echo "Keycloak PostgreSQL:"
+echo "  Host:     localhost"
+echo "  Port:     5433"
+echo "  Database: keycloak"
+echo "  User:     keycloak"
+echo "  Password: keycloak"
 echo ""
 
 echo "======================================"
