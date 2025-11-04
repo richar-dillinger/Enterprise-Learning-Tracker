@@ -1,0 +1,237 @@
+{
+  "realm": "enterprise-learning-tracker",
+  "enabled": true,
+  "displayName": "Enterprise Learning Tracker",
+  "displayNameHtml": "<div class=\"kc-logo-text\"><span>Enterprise Learning Tracker</span></div>",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "rememberMe": true,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "accessCodeLifespanLogin": 1800,
+  "actionTokenGeneratedByAdminLifespan": 43200,
+  "actionTokenGeneratedByUserLifespan": 300,
+  "oauth2DeviceCodeLifespan": 600,
+  "oauth2DevicePollingInterval": 5,
+  "roles": {
+    "realm": [
+      {
+        "name": "SYSTEM_ADMIN",
+        "description": "System Administrator with full access",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "SCHOOL_ADMIN",
+        "description": "School Administrator who can manage a school",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "TUTOR",
+        "description": "Tutor who can create and manage learning content",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "STUDENT",
+        "description": "Student who can enroll in learning paths",
+        "composite": false,
+        "clientRole": false
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin@elt.com",
+      "email": "admin@elt.com",
+      "firstName": "System",
+      "lastName": "Administrator",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SYSTEM_ADMIN"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    },
+    {
+      "username": "school.admin@elt.com",
+      "email": "school.admin@elt.com",
+      "firstName": "School",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "school123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SCHOOL_ADMIN"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    },
+    {
+      "username": "tutor@elt.com",
+      "email": "tutor@elt.com",
+      "firstName": "John",
+      "lastName": "Tutor",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "tutor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["TUTOR"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    },
+    {
+      "username": "student@elt.com",
+      "email": "student@elt.com",
+      "firstName": "Jane",
+      "lastName": "Student",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "student123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["STUDENT"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "elt-backend",
+      "name": "ELT Backend Service",
+      "description": "Backend service client for Enterprise Learning Tracker",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "elt-backend-secret-key-12345",
+      "redirectUris": [
+        "http://localhost:8080/*",
+        "http://localhost:8080/login/oauth2/code/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "protocol": "openid-connect",
+      "attributes": {
+        "access.token.lifespan": "300",
+        "client.secret.creation.time": "1234567890"
+      },
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "elt-frontend",
+      "name": "ELT Frontend Application",
+      "description": "Frontend client for Enterprise Learning Tracker",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:3000/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "elt-profile",
+      "description": "ELT User Profile Scope",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "userId",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "userId",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "userId",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "schoolId",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "schoolId",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "schoolId",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+  "defaultDefaultClientScopes": [
+    "role_list",
+    "profile",
+    "email",
+    "elt-profile"
+  ],
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "es", "fr"],
+  "defaultLocale": "en"
+}

@@ -8,6 +8,7 @@ package com.learning.tracker.usermanagement.application.dto;
 public record CreateUserRequest(
         String email,
         String firstName,
-        String lastName
+        String lastName,
+        String password
 ) {
 }

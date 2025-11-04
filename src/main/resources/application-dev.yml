@@ -28,6 +28,13 @@ spring:
       platform: h2
       schema-locations: classpath:sql-files/dev/schema-dev.sql
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/enterprise-learning-tracker
+          jwk-set-uri: http://localhost:8180/realms/enterprise-learning-tracker/protocol/openid-connect/certs
+
 management:
   endpoints:
     web:
@@ -53,3 +60,15 @@ server:
     include-message: always
     include-binding-errors: always
     include-stacktrace: on_param
+
+# Keycloak Configuration
+keycloak:
+  auth-server-url: http://localhost:8180
+  realm: enterprise-learning-tracker
+  resource: elt-backend
+  credentials:
+    secret: elt-backend-secret-key-12345
+  admin:
+    username: admin
+    password: admin
+    client-id: admin-cli

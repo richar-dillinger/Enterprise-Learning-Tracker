@@ -1,5 +1,7 @@
 /**
- * Keycloak integration for authentication and authorization.
+ * Keycloak integration infrastructure components.
+ * <p>
+ * This package contains adapters and configurations for integrating with Keycloak
+ * identity and access management.
  */
-@org.springframework.lang.NonNullApi
 package com.learning.tracker.usermanagement.infrastructure.keycloak;

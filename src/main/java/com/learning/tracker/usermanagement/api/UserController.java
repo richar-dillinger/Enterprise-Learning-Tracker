@@ -46,7 +46,8 @@ public class UserController {
         RegisterUserUseCase.RegisterUserCommand command = new RegisterUserUseCase.RegisterUserCommand(
                 request.email(),
                 request.firstName(),
-                request.lastName()
+                request.lastName(),
+                request.password()
         );
 
         UserId userId = registerUserUseCase.register(command);

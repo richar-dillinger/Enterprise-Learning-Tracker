@@ -24,11 +24,13 @@ public interface RegisterUserUseCase {
      * @param email     the user's email
      * @param firstName the first name
      * @param lastName  the last name
+     * @param password  the user's password
      */
     record RegisterUserCommand(
             String email,
             String firstName,
-            String lastName
+            String lastName,
+            String password
     ) {
     }
 }
