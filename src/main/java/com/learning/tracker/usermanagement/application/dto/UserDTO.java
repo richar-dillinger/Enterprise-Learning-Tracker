@@ -23,6 +23,7 @@ public record UserDTO(
         String fullName,
         SystemRole systemRole,
         Map<UUID, SchoolRole> schoolRoles,
+        Map<String, Object> attributes,
         boolean active,
         Instant createdAt,
         Instant updatedAt
@@ -47,6 +48,7 @@ public record UserDTO(
                                 entry -> entry.getKey().value(),
                                 Map.Entry::getValue
                         )),
+                user.getAttributes(),
                 user.isActive(),
                 user.getCreatedAt(),
                 user.getUpdatedAt()

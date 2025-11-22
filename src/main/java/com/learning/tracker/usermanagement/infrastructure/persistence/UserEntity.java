@@ -6,6 +6,8 @@ import com.learning.tracker.shared.domain.vo.UserId;
 import com.learning.tracker.usermanagement.domain.model.SchoolRole;
 import com.learning.tracker.usermanagement.domain.model.SystemRole;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -48,6 +50,10 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private Map<SchoolId, SchoolRole> schoolRoles = new HashMap<>();
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "attributes", columnDefinition = "jsonb")
+    private Map<String, Object> attributes = new HashMap<>();
+
     @Column(nullable = false)
     private boolean active;
 
@@ -68,13 +74,14 @@ public class UserEntity {
      */
     public UserEntity(UserId id, Email email, String firstName, String lastName,
                       SystemRole systemRole, Map<SchoolId, SchoolRole> schoolRoles,
-                      boolean active, Instant createdAt, Instant updatedAt) {
+                      Map<String, Object> attributes, boolean active, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.systemRole = systemRole;
         this.schoolRoles = new HashMap<>(schoolRoles);
+        this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
         this.active = active;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -151,6 +158,14 @@ public class UserEntity {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 
     @Override

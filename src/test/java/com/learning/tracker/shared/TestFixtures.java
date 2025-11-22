@@ -78,6 +78,7 @@ public class TestFixtures {
                 TEST_LAST_NAME,
                 SystemRole.USER,
                 new HashMap<>(),
+                new HashMap<>(),
                 true,
                 Instant.now(),
                 Instant.now()
@@ -91,6 +92,7 @@ public class TestFixtures {
                 TEST_FIRST_NAME,
                 TEST_LAST_NAME,
                 systemRole,
+                new HashMap<>(),
                 new HashMap<>(),
                 true,
                 Instant.now(),
@@ -113,6 +115,7 @@ public class TestFixtures {
                 lastName,
                 systemRole,
                 schoolRoles,
+                new HashMap<>(),
                 true,
                 Instant.now(),
                 Instant.now()

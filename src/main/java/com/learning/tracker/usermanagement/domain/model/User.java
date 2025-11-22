@@ -30,6 +30,7 @@ public class User {
     private String lastName;
     private SystemRole systemRole;
     private final Map<SchoolId, SchoolRole> schoolRoles;
+    private final Map<String, Object> attributes;
     private boolean active;
     private final Instant createdAt;
     private Instant updatedAt;
@@ -39,13 +40,14 @@ public class User {
      */
     private User(UserId id, Email email, String firstName, String lastName,
                  SystemRole systemRole, Map<SchoolId, SchoolRole> schoolRoles,
-                 boolean active, Instant createdAt, Instant updatedAt) {
+                 Map<String, Object> attributes, boolean active, Instant createdAt, Instant updatedAt) {
         this.id = Objects.requireNonNull(id, "User id cannot be null");
         this.email = Objects.requireNonNull(email, "Email cannot be null");
         this.firstName = validateAndTrimName(firstName, "First name");
         this.lastName = validateAndTrimName(lastName, "Last name");
         this.systemRole = Objects.requireNonNull(systemRole, "System role cannot be null");
         this.schoolRoles = new HashMap<>(schoolRoles);
+        this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
         this.active = active;
         this.createdAt = Objects.requireNonNull(createdAt, "Created at cannot be null");
         this.updatedAt = Objects.requireNonNull(updatedAt, "Updated at cannot be null");
@@ -69,6 +71,7 @@ public class User {
                 lastName,
                 SystemRole.USER,
                 new HashMap<>(),
+                new HashMap<>(),
                 true,
                 now,
                 now
@@ -84,6 +87,7 @@ public class User {
      * @param lastName    the last name
      * @param systemRole  the system role
      * @param schoolRoles the school roles map
+     * @param attributes  the custom attributes map
      * @param active      the active status
      * @param createdAt   the creation timestamp
      * @param updatedAt   the last update timestamp
@@ -91,9 +95,9 @@ public class User {
      */
     public static User reconstitute(UserId id, Email email, String firstName, String lastName,
                                     SystemRole systemRole, Map<SchoolId, SchoolRole> schoolRoles,
-                                    boolean active, Instant createdAt, Instant updatedAt) {
+                                    Map<String, Object> attributes, boolean active, Instant createdAt, Instant updatedAt) {
         return new User(id, email, firstName, lastName, systemRole, schoolRoles,
-                active, createdAt, updatedAt);
+                attributes, active, createdAt, updatedAt);
     }
 
     /**
@@ -207,6 +211,58 @@ public class User {
     }
 
     /**
+     * Sets a custom attribute for this user.
+     *
+     * @param key   the attribute key
+     * @param value the attribute value
+     */
+    public void setAttribute(String key, Object value) {
+        Objects.requireNonNull(key, "Attribute key cannot be null");
+        if (key.isBlank()) {
+            throw new IllegalArgumentException("Attribute key cannot be blank");
+        }
+        this.attributes.put(key, value);
+        this.updatedAt = Instant.now();
+    }
+
+    /**
+     * Sets multiple custom attributes for this user.
+     *
+     * @param newAttributes the attributes to set
+     */
+    public void setAttributes(Map<String, Object> newAttributes) {
+        Objects.requireNonNull(newAttributes, "Attributes cannot be null");
+        this.attributes.putAll(newAttributes);
+        this.updatedAt = Instant.now();
+    }
+
+    /**
+     * Removes a custom attribute from this user.
+     *
+     * @param key the attribute key
+     * @return true if the attribute was removed, false if it didn't exist
+     */
+    public boolean removeAttribute(String key) {
+        Objects.requireNonNull(key, "Attribute key cannot be null");
+        boolean removed = this.attributes.remove(key) != null;
+        if (removed) {
+            this.updatedAt = Instant.now();
+        }
+        return removed;
+    }
+
+    /**
+     * Gets a custom attribute value.
+     *
+     * @param key the attribute key
+     * @return the attribute value, if present
+     */
+    public Optional<Object> getAttribute(String key) {
+        Objects.requireNonNull(key, "Attribute key cannot be null");
+        return Optional.ofNullable(attributes.get(key));
+    }
+
+    /**
      * Returns the full name of the user.
      *
      * @return the full name
@@ -250,6 +306,10 @@ public class User {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return Collections.unmodifiableMap(attributes);
     }
 
     // Helper methods

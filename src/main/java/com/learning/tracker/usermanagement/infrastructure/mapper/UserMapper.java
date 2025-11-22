@@ -31,6 +31,7 @@ public class UserMapper {
                 user.getLastName(),
                 user.getSystemRole(),
                 user.getSchoolRoles(),
+                user.getAttributes(),
                 user.isActive(),
                 user.getCreatedAt(),
                 user.getUpdatedAt()
@@ -55,6 +56,7 @@ public class UserMapper {
                 entity.getLastName(),
                 entity.getSystemRole(),
                 entity.getSchoolRoles(),
+                entity.getAttributes(),
                 entity.isActive(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
