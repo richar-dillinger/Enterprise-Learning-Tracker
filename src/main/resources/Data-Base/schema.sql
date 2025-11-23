@@ -136,7 +136,7 @@ CREATE TABLE learning_paths (
         REFERENCES schools(id) ON DELETE CASCADE,
     CONSTRAINT fk_learning_paths_created_by FOREIGN KEY (created_by)
         REFERENCES users(id),
-    CONSTRAINT chk_path_status CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED'))
+    CONSTRAINT chk_path_status CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED','REVIEW'))
 );
 
 -- Index for school lookups

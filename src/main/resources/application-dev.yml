@@ -9,16 +9,22 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         use_sql_comments: true
+        type:
+          preferred_uuid_jdbc_type: UUID
 
   sql:
     init:
-      mode: never
+      mode: always
       platform: postgresql
+      data-locations: classpath:Data-Base/dev/data-dev.sql
+      continue-on-error: false
+      separator: ";"
 
   security:
     oauth2:
